@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from datasets.datasets_synapse import Synapse_dataset
-from networks.msa2net import  Msa2Net
+from networks.SSRNet import SSRNet
 from trainer import trainer_synapse
 
 from utils import test_single_volume, AddNoise # Noise Class is Added from utils.py
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     args.z_spacing = dataset_config[dataset_name]["z_spacing"]
     args.is_pretrain = True
     
-    net = Msa2Net().cuda()
+    net = SSRNet().cuda()
     
     snapshot = args.weights_fpath
 
