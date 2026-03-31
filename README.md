@@ -1,89 +1,96 @@
-# 🚀 SSR-Net: Spectral-Spatial Rectification Network with Dual-Domain Synergy for Medical Image Segmentation
+# SSR-Net: Spectral-Spatial Rectification Network
 
-## 📋 How to Use
-
-### 🔧 Requirements
-
-| Component | Requirement |
-|-----------|-------------|
-| **OS** | Ubuntu 16.04 or higher |
-| **CUDA** | 11.1 or higher |
-| **Python** | v3.7 or higher |
-| **PyTorch** | v1.7 or higher |
-| **GPU** | Single GPU with 12GB+ VRAM _(we used RTX 3090)_ |
+> Spectral-Spatial Rectification Network with Dual-Domain Synergy for Medical Image Segmentation.
 
 ---
 
-### 📦 Model Weights
+## 📖 Overview
+This repository provides the official implementation, pre-trained weights, and usage instructions for SSR-Net. 
 
-Pre-trained and learned model weights are available for download:
+---
+
+## ⚙️ Prerequisites
+Ensure your system meets the following specifications before proceeding:
+
+* **OS:** Ubuntu 16.04 or higher
+* **Compute:** Single GPU with 12GB+ VRAM (RTX 3090 recommended)
+* **CUDA:** Version 11.1 or higher
+* **Python:** Version 3.7 or higher
+* **Framework:** PyTorch 1.7 or higher
+
+---
+
+## 🗄️ Model Weights
+Pre-trained weights are required for initialization.
 
 | Dataset | Model | Download Link |
-|---------|-------|---------------|
-| **ImageNet** | MaxViT Small 224 | [⬇️ Download](https://drive.google.com/file/d/1MaWFYadsYFEROLNvYG8hZAYnlGCkPLaN/view?usp=sharing) *(third-party)* |
-| **Synapse** | SSR-Net ||
+| :--- | :--- | :--- |
+| **ImageNet** | MaxViT Small 224 | [Download weights](https://drive.google.com/file/d/1MaWFYadsYFEROLNvYG8hZAYnlGCkPLaN/view?usp=sharing) *(third-party)* |
+| **Synapse** | SSR-Net | *Coming soon* |
 
 ---
 
-### 🎯 Training and Testing
+## 🚀 Getting Started
 
-#### 1️⃣ Download Dataset
+### 1. Data Preparation
+Download the Synapse dataset from this [third-party resource](https://drive.google.com/uc?export=download&id=18I9JHH_i0uuEDg-N6d7bfMdf7Ut6bhBi). Extract and place it in your designated data directory.
 
-Download the Synapse dataset from [**here**](https://drive.google.com/uc?export=download&id=18I9JHH_i0uuEDg-N6d7bfMdf7Ut6bhBi) *(third-party resource)*.
+### 2. Weight Initialization
+Download the MaxViT Small 224×224 pre-trained weights from the table above. Place the downloaded file into the following directory:
+`networks/merit_lib/networks.py`
 
-#### 2️⃣ Download Pre-trained Weights
-
-Download the MaxViT Small 224×224 pretrained weights from [**here**](https://drive.google.com/file/d/1MaWFYadsYFEROLNvYG8hZAYnlGCkPLaN/view?usp=sharing) and place it in `networks/merit_lib/networks.py` for initialization.
-
-#### 3️⃣ Install Dependencies
-
+### 3. Installation
+Install the required Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 4️⃣ Train the Model
+---
 
-Run the following command to train SSR-Net on the Synapse dataset:
+## 💻 Training and Evaluation
 
-```bash
-python train.py --root_path ./data/Synapse/train_npz \
-                --test_path ./data/Synapse/test_vol_h5 \
-                --batch_size 20 \
-                --eval_interval 20 \
-                --max_epochs 700
-```
-
-**Parameter Descriptions:**
-- `--root_path`: Path to training data
-- `--test_path`: Path to test data
-- `--eval_interval`: Evaluation interval (epochs)
-
-#### 5️⃣ Test the Model
-
-Run the following command to test HCA_Net on the Synapse dataset:
+### Training SSR-Net
+To train the model on the Synapse dataset, execute the following command:
 
 ```bash
-python test.py --volume_path ./data/Synapse/ \
-               --output_dir ./model_out \
-               --weights_fpath Your_model_weight_path
+python train.py \
+    --root_path ./data/Synapse/train_npz \
+    --test_path ./data/Synapse/test_vol_h5 \
+    --batch_size 20 \
+    --eval_interval 20 \
+    --max_epochs 700
 ```
 
-**Parameter Descriptions:**
-- `--volume_path`: Root directory of test data
-- `--output_dir`: Directory for output results
-- `--weights_fpath`: Path to your trained model weights
+**Training Arguments:**
+* `--root_path`: Path to the training dataset.
+* `--test_path`: Path to the testing dataset.
+* `--eval_interval`: Number of epochs between evaluations.
+
+### Testing the Model
+
+To evaluate the model on the test set, run:
+
+```bash
+python test.py \
+    --volume_path ./data/Synapse/ \
+    --output_dir ./model_out \
+    --weights_fpath <path_to_your_trained_weights>
+```
+
+**Testing Arguments:**
+* `--volume_path`: Root directory containing the test data.
+* `--output_dir`: Target directory for output predictions.
+* `--weights_fpath`: File path to your specific model weights.
 
 ---
 
-## 📚 References
+## 📎 Acknowledgements
+This project builds upon the excellent work of the following repositories:
 
-- **D-LKA Net**: [https://github.com/xmindflow/deformableLKA](https://github.com/xmindflow/deformableLKA)
-- **SKNet**: [https://github.com/osmr/imgclsmob](https://github.com/osmr/imgclsmob/tree/68335927ba27f2356093b985bada0bc3989836b1)
-- **FAT**: [https://github.com/qhfan/FAT](https://github.com/qhfan/FAT)
-- **MSA<sup>2</sup>Net**: [https://github.com/xmindflow/MSA-2Net](https://github.com/xmindflow/MSA-2Net)
+* **D-LKA Net:** [xmindflow/deformableLKA](https://github.com/xmindflow/deformableLKA)
+* **SKNet:** [osmr/imgclsmob](https://github.com/osmr/imgclsmob/tree/68335927ba27f2356093b985bada0bc3989836b1)
+* **FAT:** [qhfan/FAT](https://github.com/qhfan/FAT)
+* **MSA²Net:** [xmindflow/MSA-2Net](https://github.com/xmindflow/MSA-2Net)
 
 ---
-
-<div align="center">
-  <sub>Built with ❤️ for Medical Image Segmentation</sub>
-</div>
+*Built for the Medical Image Segmentation community.*
