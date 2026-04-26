@@ -80,34 +80,6 @@ if args.dataset == "Synapse":
     args.volume_path = os.path.join(args.volume_path, "test_vol_h5")
 
 
-def remap_old_ckpt_for_ssrnet(ckpt, model):
-    if isinstance(ckpt, dict) and "state_dict" in ckpt:
-        ckpt = ckpt["state_dict"]
-    elif isinstance(ckpt, dict) and "model" in ckpt:
-        ckpt = ckpt["model"]
-    elif isinstance(ckpt, dict) and "net" in ckpt:
-        ckpt = ckpt["net"]
-
-    model_state = model.state_dict()
-    new_ckpt = {}
-
-    for k, v in ckpt.items():
-        if k.startswith("module."):
-            k = k[7:]
-
-        if ".tran_layer1." in k or ".tran_layer2." in k:
-            continue
-
-        k = k.replace(".ag_attn.dw.", ".ag_attn.spatial_filter.")
-        k = k.replace(".ag_attn.complex_weight", ".ag_attn.freq_weight")
-        k = k.replace(".ag_attn.pre_norm.", ".ag_attn.norm_pre.")
-        k = k.replace(".ag_attn.post_norm.", ".ag_attn.norm_post.")
-
-        if k in model_state and model_state[k].shape == v.shape:
-            new_ckpt[k] = v
-
-    return new_ckpt
-
 
 def inference(args, model, test_save_path=None):
     db_test = args.Dataset(base_dir=args.volume_path, split="test_vol", img_size=args.img_size, list_dir=args.list_dir)
@@ -185,32 +157,44 @@ if __name__ == "__main__":
     args.z_spacing = dataset_config[dataset_name]["z_spacing"]
     args.is_pretrain = True
 
-    net = SSRNet().cuda()
 
-    net.eval()
+    profile_net = SSRNet().cuda()
+    profile_net.eval()
+
     dummy_input = torch.randn(1, 1, args.img_size, args.img_size).cuda()
 
     with torch.no_grad():
-        macs, params = profile(net, inputs=(dummy_input,), verbose=False)
+        macs, params = profile(profile_net, inputs=(dummy_input,), verbose=False)
 
-    flops = macs * 2  
-    macs, params, flops = clever_format([macs, params, flops], "%.3f")
+    macs, params = clever_format([macs, params], "%.3f")
 
     print("Params:", params)
-    print("MACs:", macs)
+    print("FLOPs:", macs)
+
+    del profile_net
+    torch.cuda.empty_cache()
+
+    net = SSRNet().cuda()
 
     snapshot = args.weights_fpath
 
-    snapshot = os.path.join(args.output_dir, snapshot)
-
-    if not os.path.exists(snapshot):
-        snapshot = snapshot.replace("best_model", "transfilm_epoch_" + str(args.max_epochs - 1))
+    if not os.path.isabs(snapshot):
+        snapshot = os.path.join(args.output_dir, snapshot)
 
     ckpt = torch.load(snapshot, map_location="cpu")
-    ckpt = remap_old_ckpt_for_ssrnet(ckpt, net)
 
-    msg = net.load_state_dict(ckpt, strict=False)
+    if isinstance(ckpt, dict) and "state_dict" in ckpt:
+        ckpt = ckpt["state_dict"]
 
+    ckpt = {
+        k.replace("module.", "", 1): v
+        for k, v in ckpt.items()
+    }
+
+    msg = net.load_state_dict(ckpt, strict=True)
+    print(msg)
+
+    net.eval()
 
     #     net = torch.load(snapshot)
     # print("self trained Sina unet", msg)
