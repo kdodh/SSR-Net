@@ -26,7 +26,7 @@ Pre-trained weights are required for initialization.
 | Dataset | Model | Download Link |
 | :--- | :--- | :--- |
 | **ImageNet** | MaxViT Small 224 | [Download weights](https://drive.google.com/file/d/1MaWFYadsYFEROLNvYG8hZAYnlGCkPLaN/view?usp=sharing) *(third-party)* |
-| **Synapse** | SSR-Net | [Download weights](https://drive.google.com/file/d/1_5pXkb05NMuGux_bxGA2Tr0CcjvJar8W/view?usp=drive_link) |
+| **Synapse** | SSR-Net | [Download weights](https://drive.google.com/file/d/19-rCliU6VM1eMtN084U01ZDZayF8iMVZ/view?usp=drive_link) |
 
 ---
 
